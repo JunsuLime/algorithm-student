@@ -1,9 +1,8 @@
 import math
 
-_ = input()
-numbers = list(map(int, input().split()))
+min_num, max_num = map(int, input().split())
 
-max_filter_num = max(numbers)
+max_filter_num = max_num
 max_checker = int(math.sqrt(max_filter_num)) + 1
 
 # print(max_filter_num, max_checker)
@@ -35,10 +34,9 @@ for i in range(2, max_checker + 1):
 
 
 counter = 0
-for n in numbers:
-	# print(n)
-	if p_filter[n] == 1 or p_filter[n] == -1:
-		counter += 1
 
-print(counter)
+for i in range(min_num, max_num + 1):
+	if p_filter[i] == 1 or p_filter[i] == -1:
+		print(i)
+
 
