@@ -16,6 +16,12 @@ def print_output(i, result):
 		print("Case #%d: %d" % (i+1, result))
 
 def work():
+	"""
+	there are specific rules in charge and shoot.
+	It can be represented by equation
+
+	Rather than move one by one, calculate moving result and do that
+	"""
 	shield, program = input().split()
 	shield = int(shield)
 

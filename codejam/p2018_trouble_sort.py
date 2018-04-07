@@ -10,6 +10,12 @@ def print_output(i, result):
 		print("Case #%d: %d" % (i+1, result))
 
 def work():
+	"""
+	trouble sort is sort in odd index, even index seperately.
+	So, problem can be occur in conjunction of even and odd val
+
+	check odd, even sorted set and compare is it right
+	"""
 	odd_list = list()
 	even_list = list()
 
@@ -19,7 +25,7 @@ def work():
 			even_list.append(e)
 		else:
 			odd_list.append(e)
-
+	
 	
 	# python sort is merge sort + insertion sort
 	# so, big O - near log2n

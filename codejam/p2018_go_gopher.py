@@ -21,6 +21,12 @@ class Failure(Exception):
 	pass
 
 def work():
+	"""
+	go_gopher, random picker in 3*3 range.
+
+	must fill all section so order of pick dont care.. OK
+	but avoid to try pick place that already prepared.
+	"""
 	area = int(input())
 
 
@@ -66,7 +72,6 @@ def work():
 
 		return all_prepared
 	
-	# move like tornado !!
 
 	while True:
 		try:

@@ -97,6 +97,16 @@ def rotate_mat_3d(axis, angle):
 
 
 def work():
+	"""
+	Seeing cubic, we can see face 1 ~ 3
+	and see more faces, projection larger too.
+
+	projection value can be calculated by triangle function.
+
+	when rotate val appear, use them on 3d_coordinates.
+	rotate matrix can be used for this work.
+	Do it and solve it
+	"""
 	A = float(input())
 	# print("A: %f" % A)
 
@@ -134,9 +144,6 @@ def work():
 		return face_two()
 	else:
 		return face_three()
-
-
-	return [(0.5, 0, 0), (0, 0.5, 0), (0, 0, 0.5)]
 
 
 for i in range(test_case):
