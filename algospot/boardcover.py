@@ -1,3 +1,10 @@
+# Time Complexity: < O(8 ^ (empty / 3))  may be..
+# Elapsed time: 68ms
+#
+# Complete search problem
+# Little bit different with books solution.
+# In my case, check 8 block state -> must fill the blank
+
 import sys
 
 test_case = int(sys.stdin.readline())
@@ -44,15 +51,10 @@ blocks = (
 EMPTY = '.'
 WALL = '#'
 
-def copy_2d_list(l):
-	copied = [['#' for _ in range(len(l[0]))] for _ in range(len(l))]
-	for i in range(len(l)):
-		for j in range(len(l[0])):
-			copied[i][j] = l[i][j]
-	
-	return copied
-
 def print_cover(c):
+	"""
+	Debugging ...
+	"""
 	print('---------------')
 	for line in c:
 		print(line)
@@ -60,12 +62,15 @@ def print_cover(c):
 
 
 def work():
+	# read width and height values
 	width, height = map(int, sys.stdin.readline().split())
 	board = list()
 
 	empty_count = 0
 	for _ in range(width):
-		line = sys.stdin.readline().rstrip()
+		# rstrip remove return carage
+		# save map on board list
+		line = list(sys.stdin.readline().rstrip())
 		board.append(line)
 
 		empty_count += line.count(EMPTY)
@@ -76,13 +81,20 @@ def work():
 		return 0
 
 	def search(c, x, y, e_count):
-		# print('search is called with %d %d' % (x, y))
-		# print_cover(c)
+		"""
+		@param c: current cover state
+		@param x: in current state - ref x
+		@param y: in current state - ref y
+		@param e_count: remained empty_count value
+
+		@return: at this state (c), return available case count.
+		"""
 		if not (0 <= x < width and 0 <= y < height):
 			return 0
 
 		case_count = 0
 		for b in blocks:
+			# if candidate position are WALL or OutOfIndex, then ignore it.
 			if not ((0 <= x+b[0][0] < width) and (0 <= x+b[1][0] < width)):
 				continue
 			if not ((0 <= y+b[0][1] < height) and (0 <= y+b[1][1] < height)):
@@ -92,24 +104,23 @@ def work():
 			if c[x+b[1][0]][y+b[1][1]] == WALL:
 				continue
 			
-			# wow
+			# wow find it
 			if e_count == 3:
 				case_count += 1
 				continue
 
 			# cover it
-			new_cover = copy_2d_list(c)
-			new_cover[x][y] = WALL
-			new_cover[x+b[0][0]][y+b[0][1]] = WALL
-			new_cover[x+b[1][0]][y+b[1][1]] = WALL
+			c[x][y] = WALL
+			c[x+b[0][0]][y+b[0][1]] = WALL
+			c[x+b[1][0]][y+b[1][1]] = WALL
 
-			# get next x, y
+			# get next x, y to ref
 			nx = x
 			ny = y+1
 			while nx < width:
 				success = False
 				while ny < height:
-					if new_cover[nx][ny] != WALL:
+					if c[nx][ny] != WALL:
 						success = True
 						break
 					ny += 1
@@ -119,7 +130,12 @@ def work():
 				ny = 0
 
 			# recurviely search again
-			case_count += search(new_cover, nx, ny, e_count-3)
+			case_count += search(c, nx, ny, e_count-3)
+			
+			# recover origin state
+			c[x][y] = EMPTY
+			c[x+b[0][0]][y+b[0][1]] = EMPTY
+			c[x+b[1][0]][y+b[1][1]] = EMPTY
 
 		return case_count
 	
