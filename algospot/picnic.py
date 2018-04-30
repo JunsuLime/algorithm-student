@@ -1,21 +1,16 @@
+# Time complexity: O(
+# Elapsed time: 48ms
+#
+# Complete search, Recursion
+# 
+# 1) if all pairs are matched -> return 1 (+1)
+# 2) if not friend match occur -> return 0 (None)
+# 3) else, keep going matching !
+
 import itertools
 
 
 test_case = int(input())
-
-
-def set_copy(s):
-	"""
-	util function
-	python set copy function
-
-	@param s: source set
-	@return: copied set
-	"""
-	new_set = set()
-	for e in s:
-		new_set.add(e)
-	return new_set
 
 
 def work():
@@ -44,6 +39,7 @@ def work():
 		def __matching_internal(m, tried_pair):
 			"""
 			return match_count of current state (tried_pair)
+			
 			@param m: current base matcher
 			@return: match count
 			"""
@@ -59,14 +55,15 @@ def work():
 			for f in friend_map[m]:
 				if f in tried_pair:
 					continue
-				pair = set_copy(tried_pair)
-				pair.add(m)
-				pair.add(f)
+				tried_pair.add(m)
+				tried_pair.add(f)
 				next_m = m+1
-				while next_m in pair:
+				while next_m in tried_pair:
 					next_m += 1
 				# get fastest number matchable friend
-				match_count += __matching_internal(next_m, pair)
+				match_count += __matching_internal(next_m, tried_pair)
+				tried_pair.remove(m)
+				tried_pair.remove(f)
 
 			return match_count
 	
