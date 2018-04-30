@@ -1,3 +1,10 @@
+# Time Complexity: O(4^10)
+# Elapsed time: Time exceeded .. T_T
+#
+# Complete search problem
+# python is weak for recursive call. when recursion occur a lot.
+# avoid using python.
+
 test_case = int(input())
 
 switch = (

@@ -1,11 +1,12 @@
-#include <stdio.h>
-/* Time Complexity
- * O(4^10)
+/* Time Complexity: O(4^10)
  * elapsed time: 528ms
  * 
  * Recusion, Complete Search
+ * TODO: When problem needs lots of recursion, do not use python.
+ * instead using C or C++. So familiar with C family.
  */
 
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -91,6 +92,7 @@ int work() {
 int main() {
 	int test_case;
 	
+	// initial settings for switch
 	int s0[3] = {0, 1, 2};
 	int s1[4] = {3, 7, 9, 11};
 	int s2[4] = {4, 10, 14, 15};
