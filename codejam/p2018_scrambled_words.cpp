@@ -1,6 +1,8 @@
 #include <iostream>
 #include <string.h>
 #include <stdlib.h>
+#include <vector>
+#include <map>
 
 #define CHAR_NUM 26
 #define SMALL_START 97
@@ -8,34 +10,41 @@
 using namespace std;
 
 struct MatchWord {
-	long length;
 	char first;
 	char last;	
 	int matched[CHAR_NUM];
-
-	bool passed;
 };
 
-int m_check[CHAR_NUM] = {0};
+bool is_matched(int* m1, int* m2) {
+    for (int i = 0; i < CHAR_NUM; i++) {
+        if (m1[i] != m2[i]) {
+            return false;
+        }
+    }
+    return true;
+}
+
 
 int work() {
-	int word_num;
 
+    /* read input */
+	int word_num;
 	cin >> word_num;
-	MatchWord **words = (MatchWord**) malloc(sizeof(MatchWord*)*word_num);
+
+    map<int, vector<MatchWord> > word_map;
 	for (int i = 0; i < word_num; i++) {
 		string word;
 		cin >> word;
-		MatchWord* m = (MatchWord*) malloc(sizeof(MatchWord));
-		m->length = word.size();
-		m->first = word[0];
-		m->last = word[word.size()-1];
-		m->passed = false;
-		memset(m->matched, 0x00, sizeof(int)*CHAR_NUM);
-		for (int j = 1; j < word.size()-1; j++) {
-			m->matched[((int) word[j] - SMALL_START)]++;
+		
+        MatchWord m;
+        int word_length = word.size();
+		m.first = word[0];
+		m.last = word[word.size()-1];
+		memset(m.matched, 0x00, sizeof(int)*CHAR_NUM);
+		for (int j = 0; j < word.size(); j++) {
+			m.matched[((int) word[j] - SMALL_START)]++;
 		}
-		words[i] = m;
+        word_map[word_length].push_back(m);
 	}
 
 	char s1, s2;
@@ -57,156 +66,64 @@ int work() {
 
 		ppx = px;
 		px = x;
-	}	
-	// input reading end !!!!!!!!!!!!!!!
+	}
+    /* read input end */
 
+    cout << "work!!" << endl;
+    /* work */
 	int count = 0;
+    map<int, vector<MatchWord> >::iterator iter;
+    int* matcher = (int*) malloc(sizeof(int)*CHAR_NUM);
 
-	for (int i = 0; i < n; i++) {	
-		for (int j = 0; j < word_num; j++) {	
-			MatchWord *m = words[j];
+    for (iter = word_map.begin(); iter != word_map.end(); iter++) {
+        int length = iter->first;
+        vector<MatchWord> words = iter->second;
 
-			// already passed matcher
-			if (m->passed) 
-				continue;
-			// length check
-			if (i + m->length - 1 >= n)
-				continue;
-			// first check
-			if (paper[i] != m->first) 
-				continue;
-			// last check
-			if (paper[i + m->length -1] != m->last)
-				continue;
-			// middle check
-			bool success = true;
-			memset(m_check, 0x00, sizeof(int)*CHAR_NUM);
-			for (int j = i+1; j < i + m->length-1; j++) {
-				int s_idx = (int) paper[j] - SMALL_START;
-				// failure1: no char in pattern
-				if (m->matched[s_idx] == 0) {
-					success = false;
-					break;
-				}
-				m_check[s_idx]++;
-			}
-			for (int j = 0; j < CHAR_NUM; j++) {
-				// failure2: match count not matched
-				if (m_check[j] != m->matched[j]) {
-					success = false;
-					break;
-				}
-			}	
+        // 1) make length l window
+        int i = 0;
+        memset(matcher, 0x00, sizeof(int)*CHAR_NUM);
+        for (i = 0; i < length; i++) {
+            matcher[paper[i]-SMALL_START]++;
+        }
 
-			if (success) {
-				m->passed = true;
-				count++;
-			}
-		}	
-	}
+        // 2) start window sliding
+        for (; i < n; i++) {
+            // match with matcher
+            int cur = 0;
+            int swapped = words.size();
+            while (cur != swapped) {
+                MatchWord m = words[cur];
 
+                if (paper[i-length] == m.first 
+                    && paper[i-1] == m.last
+                    && is_matched(m.matched, matcher)) {
+
+                    count++;
+                    swapped--;
+
+                    // swap item1 and item2
+                    MatchWord tmp = words[cur];
+                    words[cur] = words[swapped];
+                    words[swapped] = tmp;
+                }
+                else {
+                    cur++;
+                }
+            }
+            // remove alreay matched words
+            words.erase(words.begin()+cur, words.end());
+
+            // slide...
+            matcher[paper[i-length]-SMALL_START]--;
+            matcher[paper[i]-SMALL_START]++;
+        }
+    }
+
+    free(matcher);
 	free(paper);
-	for (int i = 0; i < word_num; i++) {
-		free(words[i]);
-	}
-	free(words);
-
 	return count;
 }
 
-int advanced() {
-	int word_num;
-
-	cin >> word_num;
-	MatchWord *words = (MatchWord*) malloc(sizeof(MatchWord)*word_num);
-	for (int i = 0; i < word_num; i++) {
-		string word;
-		cin >> word;
-		words[i]->length = word.size();
-		words[i]->first = word[0];
-		words[i]->last = word[word.size()-1];
-		memset(words[i]->matched, 0x00, sizeof(int)*CHAR_NUM);
-		for (int j = 1; j < word.size()-1; j++) {
-			words[i]->matched[((int) word[j] - SMALL_START)]++;
-		}
-	}
-
-	char s1, s2;
-	cin >> s1 >> s2;
-
-	int n, a, b, c, d;
-	cin >> n >> a >> b >> c >> d;
-
-	char* paper = (char*) malloc(sizeof(char)*n);
-	paper[0] = s1;
-	paper[1] = s2;
-
-	long ppx = paper[0];
-	long px = paper[1];
-
-	for (int i = 2; i < n; i++) {
-		int x = (a*px + b*ppx + c) % d;
-		paper[i] = (char) (SMALL_START + (x % CHAR_NUM));
-
-		ppx = px;
-		px = x;
-	}	
-	// input reading end !!!!!!!!!!!!!!!
-
-	int count = 0;
-
-	for (int i = 0; i < word_num; i++) {
-		for (int idx = 0; idx < n; idx++) {
-			// length check
-			if (idx + words[i]->length - 1 >= n)
-				continue;
-			// first check
-			if (paper[idx] != words[i]->first) 
-				continue;
-			// last check
-			if (paper[idx + words[i]->length -1] != words[i]->last)
-				continue;
-			// middle check
-			bool success = true;
-			memset(m_check, 0x00, sizeof(int)*CHAR_NUM);
-			for (int j = idx+1; j < idx + words[i]->length-1; j++) {
-				int s_idx = (int) paper[j] - SMALL_START;
-				// failure1: no char in pattern
-				if (m->matched[s_idx] == 0) {
-					success = false;
-					break;
-				}
-				m_check[s_idx]++;
-			}
-			for (int j = 0; j < CHAR_NUM; j++) {
-				// failure2: match count not matched
-				if (m_check[j] != m->matched[j]) {
-					success = false;
-					break;
-				}
-			}	
-
-			if (success) {
-				m->passed = true;
-				count++;
-			}
-		}
-	}	
-
-	for (int i = 0; i < n; i++) {	
-		for (int j = 0; j < word_num; j++) {	
-			
-		}	
-	}
-
-	free(paper);
-	for (int i = 0; i < word_num; i++) {
-		free(words[i]);
-	}
-	free(words);
-
-	return count;
-}
 
 int main() {
 	ios::sync_with_stdio(false);
@@ -215,6 +132,6 @@ int main() {
 	
 	cin >> test_case;
 	for (int i = 0; i < test_case; i++) {
-		cout << "Case #" << i+1 << ": " << advanced() << endl;
+		cout << "Case #" << i+1 << ": " << work() << endl;
 	}
 }
