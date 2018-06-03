@@ -73,7 +73,7 @@ struct Node {
     bool operator< (Node n) const {
         return time < n.time;
     }
-}
+};
 
 // problem1
 void sortList(int *list, int left_idx, int right_idx) {
@@ -82,36 +82,39 @@ void sortList(int *list, int left_idx, int right_idx) {
     if (left_idx+1 >= right_idx)
         return;
     
-    int middle_idx = (left + right) >> 1;
+    int middle_idx = (left_idx + right_idx) >> 1;
     sortList(list, left_idx, middle_idx);   // [left, middle)
     sortList(list, middle_idx, right_idx);  // [middle, right)
 
-    int *left_list = new int[middle-left];
-    int *right_list = new int[right-middle];
+    int *left_list = new int[middle_idx-left_idx];
+    int *right_list = new int[right_idx-middle_idx];
     
     // copy left side array and right side array
-    for (int i = 0; i < middle-left; i++) {
-        left_list[i] = list[left+i];
+    for (int i = 0; i < middle_idx-left_idx; i++) {
+        left_list[i] = list[left_idx+i];
     }
-    for (int i = 0; i < right-middle; i++) {
-        right_list[i] = list[middle+i];
+    for (int i = 0; i < right_idx-middle_idx; i++) {
+        right_list[i] = list[middle_idx+i];
     }
 
-    curr_left_idx = 0;
-    curr_right_idx = 0;
+    // merge left side and right side
+    int curr_left_idx = 0;
+    int curr_right_idx = 0;
     for (int i = left_idx; i < right_idx; i++) {
-        if (curr_left_idx == middle-left)
-            list[i] = left_list[curr_left_idx++];
-        else if (curr_right_idx == right-middle)
+        // no more left side element
+        if (curr_left_idx == middle_idx-left_idx)
             list[i] = right_list[curr_right_idx++];
+        // no more right side element
+        else if (curr_right_idx == right_idx-middle_idx)
+            list[i] = left_list[curr_left_idx++];
         else if (left_list[curr_left_idx] <= right_list[curr_right_idx]) 
             list[i] = left_list[curr_left_idx++];
         else 
             list[i] = right_list[curr_right_idx++];
     }
-
-    delete left_list;
-    delete right_list;
+    
+    delete[] left_list;
+    delete[] right_list;
 }
 
 // merge sort
@@ -124,14 +127,14 @@ void solveProblem1() {
         cin >> list[i];
     }
 
-    sort(list, 0, n);
+    sortList(list, 0, n);
     
     for (int i = 0; i < n; i++) {
-        cout << list[i];
+        cout << list[i] << " ";
     }
     cout << endl;
     
-    delete list[];
+    delete[] list;
 }
 
 // https://www.acmicpc.net/problem/1516
@@ -147,7 +150,7 @@ void solveProblem2() {
     // 2) index 를 고쳐서 0 부터 시작하게 하거나
     // 두 경우 모두 허용한다. 하지만 1), 2) 의 경우 모두
     // 해당 작업을 한 부분에 대해서는 주석을 써주는 것을 원칙으로 한다.
-    Node build_graph[] = new Node[n+1];
+    Node* build_graph = new Node[n+1];
 
     int tmp;
     for (int i = 1; i < n+1; i++) {
@@ -174,23 +177,23 @@ void solveProblem2() {
 
     // topological sort in DAG
     while (!node_queue.empty()) {
-        Node *node = &node_queue.top();
-        vector<int>::iterator node_iter = node->node_list.begin();
-        for (; node_iter != node->node_list.end(); node_iter++) {
+        Node node = node_queue.top();
+        node_queue.pop();
+        vector<int>::iterator node_iter = node.node_list.begin();
+        for (; node_iter != node.node_list.end(); node_iter++) {
             build_graph[*node_iter].degree--;
             if (build_graph[*node_iter].degree == 0) {
-                build_graph[*node_iter].time += node->time;
+                build_graph[*node_iter].time += node.time;
                 node_queue.push(build_graph[*node_iter]);
             } 
         }
     }
 
     // 1 ~ n iteration
-    for (int i = 1; i < n; i++) {
+    for (int i = 1; i < n+1; i++) {
         cout << build_graph[i].time << endl;
     }
-
-    delete build_graph;
+    delete[] build_graph;
 } 
 
 int main() {
